@@ -3,18 +3,23 @@ import fetch from "node-fetch";
 import config from "../config/env.js";
 
 export const getAllAPIs = async (req, res) => {
-  try {
-    const found = await API.find().exec();
-    if (!found) {
-      res.statusMessage = "Nothing Found";
-      return res.sendStatus(204);
-    }
-    res.statusMessage = "Data Found";
-    res.status(200).json(found);
-  } catch (err) {
-    res.statusMessage = err.message;
-    res.sendStatus(500);
-  }
+  const {
+    paginatedResults,
+    totalDocs,
+    nextPage,
+    currentPage,
+    currentLimit,
+    nextPageNo,
+  } = res;
+
+  res.status(200).json({
+    data: paginatedResults,
+    totalDocs,
+    currentLimit,
+    currentPage,
+    nextPageNo,
+    nextPage,
+  });
 };
 
 export const getManyAPIs = async (req, res) => {
@@ -64,12 +69,23 @@ export const syncAPIsInMongoDB = async (req, res) => {
       res.sendStatus(204);
     }
 
+    // clean db
+
+    API.db.dropCollection("apis", (error, result) => {
+      if (error) {
+        console.log(error.message);
+      }
+
+      console.log("Collection droped", result);
+    });
+
     // Store data to MongoDB
 
     data.entries.forEach(async (entry) => {
-      const created = await API.create(entry);
-      console.log("created", created);
+      await API.create(entry);
     });
+
+    console.log("Data fetched and synced with API");
 
     res.statusMessage = "Data fetched and synced in MongoDB";
     res.sendStatus(201);
