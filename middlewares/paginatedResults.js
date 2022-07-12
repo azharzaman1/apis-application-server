@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 
 export const paginatedResults = (Model) => {
   return async (req, res, next) => {
-    const page = parseInt(req.query?.page);
-    const limit = parseInt(req.query?.limit);
-    const query = req.query?.query;
-    const filterString = req.query?.filter;
+    const page = parseInt(req.query?.page); // page no - from request
+    const limit = parseInt(req.query?.limit); // max entries per page - from request
+    const query = req.query?.query; // search query - from request
+    const filterString = req.query?.filter; // for future
 
     const skipIndex = (page - 1) * limit;
     console.log(query ? query : "Nil", page, limit, skipIndex);
@@ -35,16 +35,16 @@ export const paginatedResults = (Model) => {
             }
 
             res.paginatedResults = results;
-            res.nextPage = count - skipIndex - limit > 0 ? true : false;
             res.totalDocs = count;
             res.currentPage = page;
+            res.nextPage = count - skipIndex - limit > 0 ? true : false;
             res.currentLimit = limit;
             res.nextPageNo = page + 1;
             next();
           }
         );
       }
-      // return full results
+      // otherwise - return full results
       res.paginatedResults = await Model.find().exec();
       next();
     } catch (err) {

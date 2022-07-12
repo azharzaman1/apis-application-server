@@ -53,7 +53,6 @@ export const getAPIById = async (req, res) => {
       return res.sendStatus(204);
     }
 
-    console.log(found);
     res.status(200).json(found);
   } catch (err) {
     res.statusMessage = err.message;
@@ -98,7 +97,6 @@ export const syncAPIsInMongoDB = async (req, res) => {
     res.statusMessage = "Data fetched and synced in MongoDB";
     res.sendStatus(201);
   } catch (err) {
-    console.log(err.message);
     res.statusMessage = err.message;
     res.sendStatus(500);
   }
