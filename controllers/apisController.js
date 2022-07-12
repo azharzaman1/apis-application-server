@@ -1,6 +1,7 @@
 import API from "../models/apiModal.js";
 import fetch from "node-fetch";
 import config from "../config/env.js";
+import dashify from "dashify";
 
 export const getAllAPIs = async (req, res) => {
   const {
@@ -27,7 +28,7 @@ export const getManyAPIs = async (req, res) => {
   try {
     const result = await API.find({
       _id: { $in: ids },
-    });
+    }).select("API Slug Link Description Category");
 
     if (!result) {
       res.statusMessage = "Nothing Found";
@@ -44,7 +45,9 @@ export const getManyAPIs = async (req, res) => {
 export const getAPIById = async (req, res) => {
   const id = req.params.id;
   try {
-    const found = await API.findById(id).exec();
+    const found = await API.findById(id)
+      .select("API Slug Link Description Category")
+      .exec();
     if (!found) {
       res.statusMessage = "Data Found";
       return res.sendStatus(204);
@@ -82,7 +85,12 @@ export const syncAPIsInMongoDB = async (req, res) => {
     // Store data to MongoDB
 
     data.entries.forEach(async (entry) => {
-      await API.create(entry);
+      const modifiedEntry = {
+        ...entry,
+        Slug: dashify(entry.API),
+        api_name_lowercase: String(entry.API).toLowerCase(),
+      };
+      await API.create(modifiedEntry);
     });
 
     console.log("Data fetched and synced with API");

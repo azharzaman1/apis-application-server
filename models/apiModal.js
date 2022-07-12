@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const apiSchema = new mongoose.Schema(
   {
     API: { type: String, required: true },
+    Slug: { type: String, required: true },
+    api_name_lowercase: { type: String, required: true },
     Description: { type: String },
     Auth: { type: String },
     HTTPS: { type: Boolean },
